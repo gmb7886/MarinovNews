@@ -16,7 +16,6 @@ import java.util.List;
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.VH> {
     private final List<FeedItem> list;
 
-    // Construtor agora recebe só a lista
     public FeedAdapter(List<FeedItem> data) {
         list = data;
     }
@@ -37,7 +36,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.VH> {
         holder.tvPubDate.setText(item.getPubDate());
         holder.tvDescription.setText(item.getDescription());
 
-        // Carrega imagem se existir
         if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
             holder.ivImage.setVisibility(View.VISIBLE);
             Glide.with(holder.ivImage.getContext())
@@ -48,12 +46,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.VH> {
             holder.ivImage.setVisibility(View.GONE);
         }
 
-        // Abre link no navegador ao clicar
         holder.itemView.setOnClickListener(v -> {
             String url = item.getLink();
             Log.d("RSS", "Clicou no item: " + item.getTitle() + " / " + url);
             if (url != null && !url.isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                Intent intent = new Intent(v.getContext(), ArticleActivity.class);
+                intent.putExtra("url", url);
                 v.getContext().startActivity(intent);
             }
         });
