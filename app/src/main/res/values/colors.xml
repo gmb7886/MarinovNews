@@ -10,4 +10,9 @@
     <color name="md_theme_light_surfaceVariant">#F3EDF7</color>
     <color name="card_stroke_color">#1E88E5</color>
     <color name="selector_bottom_nav_item_color">@color/nav_item_color</color>
+    <color name="sepia">#F4ECD8</color>
+    <color name="sepia_text">#5A4A42</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
 </resources>

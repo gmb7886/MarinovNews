@@ -1,21 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbarStyle="outsideOverlay"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:padding="8dp"
+        android:orientation="horizontal"
+        android:elevation="8dp">
+
+        <ImageButton
+            android:id="@+id/btnDecreaseFont"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_text_decrease"
+            android:background="?selectableItemBackgroundBorderless"/>
+
+        <ImageButton
+            android:id="@+id/btnIncreaseFont"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_text_increase"
+            android:background="?selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#CCC"
+            android:layout_marginHorizontal="8dp"/>
+
+        <ImageButton
+            android:id="@+id/btnThemeAuto"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_theme_auto"
+            android:background="?selectableItemBackgroundBorderless"/>
+
+        <ImageButton
+            android:id="@+id/btnThemeLight"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_theme_light"
+            android:background="?selectableItemBackgroundBorderless"
+            android:layout_marginStart="4dp"/>
+
+        <ImageButton
+            android:id="@+id/btnThemeDark"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_theme_dark"
+            android:background="?selectableItemBackgroundBorderless"
+            android:layout_marginStart="4dp"/>
+
+        <ImageButton
+            android:id="@+id/btnThemeSepia"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_theme_sepia"
+            android:background="?selectableItemBackgroundBorderless"
+            android:layout_marginStart="4dp"/>
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:max="100"
-        android:progressTint="@color/design_default_color_primary"
+        android:progressTint="@color/colorPrimary"
         android:visibility="gone"/>
 
-</RelativeLayout>
+</LinearLayout>
