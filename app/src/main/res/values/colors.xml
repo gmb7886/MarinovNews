@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fallback_primary">#FF5722</color>
+    <color name="fallback_on_primary">#FFFFFF</color>
+    <color name="fallback_secondary">#FF9800</color>
+    <color name="fallback_on_secondary">#FFFFFF</color>
+    <color name="fallback_background">#FFFFFF</color>
+    <color name="fallback_surface">#FFFBFE</color>
+    <color name="fallback_on_background">#000000</color>
+    <color name="fallback_on_surface">#1C1B1F</color>
+</resources>

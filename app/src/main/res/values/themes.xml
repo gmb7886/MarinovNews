@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema principal com Material You dinâmico -->
+    <style name="Theme.Noticias" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
+        <!-- Status bar em light mode: fundo claro (colorPrimary) + ícones escuros -->
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Navigation bar (fundo e ícones) -->
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <!-- Usa nosso style customizado para o BottomNavigationView -->
+        <item name="bottomNavigationStyle">@style/Widget.Noticias.BottomNav</item>
+    </style>
+
+    <!-- Style para o BottomNavigationView, herdando dinâmico -->
+    <style name="Widget.Noticias.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <!-- Fundo que respeita container low -->
+        <item name="android:background">?attr/colorSurfaceContainerLow</item>
+        <!-- Tints via nosso selector -->
+        <item name="itemIconTint">@color/nav_item_color</item>
+        <item name="itemTextColor">@color/nav_item_color</item>
+    </style>
+</resources>
