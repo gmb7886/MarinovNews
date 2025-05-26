@@ -3,9 +3,9 @@
     <color name="colorPrimary">#0061C1</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorPrimaryContainer">#0061C1</color>
-    <color name="colorSurface">#FFFFFF</color>
-    <color name="colorOnSurface">#000000</color>
-    <color name="icon_tint">#000000</color>
+    <color name="colorSurface">#000000</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+    <color name="icon_tint">#FFFFFF</color>
     <color name="colorSurfaceVariant">@android:color/black</color>
     <color name="md_theme_light_surfaceVariant">#F3EDF7</color>
     <color name="card_stroke_color">#1E88E5</color>

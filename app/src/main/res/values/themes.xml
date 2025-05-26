@@ -3,22 +3,28 @@
     <!-- Tema principal com Material You dinâmico -->
     <style name="Theme.Noticias" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <!-- Status bar em light mode: fundo claro (colorPrimary) + ícones escuros -->
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <!-- Navigation bar (fundo e ícones) -->
-        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="android:forceDarkAllowed">true</item>
         <item name="android:windowLightNavigationBar">true</item>
-
+        <item name="android:windowLightStatusBar">true</item>
         <!-- Usa nosso style customizado para o BottomNavigationView -->
         <item name="bottomNavigationStyle">@style/Widget.Noticias.BottomNav</item>
     </style>
 
     <!-- Style para o BottomNavigationView, herdando dinâmico -->
     <style name="Widget.Noticias.BottomNav" parent="Widget.Material3.BottomNavigationView">
-        <!-- Fundo que respeita container low -->
-        <item name="android:background">?attr/colorSurfaceContainerLow</item>
-        <!-- Tints via nosso selector -->
-        <item name="itemIconTint">@color/nav_item_color</item>
-        <item name="itemTextColor">@color/nav_item_color</item>
+        <item name="itemIconSize">32dp</item>
+        <item name="itemPaddingTop">8dp</item>
+        <item name="itemPaddingBottom">8dp</item>
+        <item name="itemIconTint">@color/selector_bottom_nav_item_color</item>
+        <item name="itemTextColor">@color/selector_bottom_nav_item_color</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 </resources>
