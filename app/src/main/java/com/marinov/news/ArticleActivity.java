@@ -1,8 +1,11 @@
 package com.marinov.news;
 
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
@@ -23,8 +26,9 @@ public class ArticleActivity extends AppCompatActivity {
 
     private WebView webView;
     private ProgressBar progressBar;
-    private int currentFontSize = 100; // Tamanho inicial da fonte em porcentagem
-    private String currentTheme = "auto"; // Tema atual
+    private int currentFontSize = 100;
+    private String currentTheme = "auto";
+    private SharedPreferences preferences;
 
     private static final String[] CONTENT_SELECTORS = {
             "[itemprop='articleBody']",
@@ -35,10 +39,18 @@ public class ArticleActivity extends AppCompatActivity {
             ".post-content"
     };
 
+    private static final String PREFS_NAME = "NewsAppPrefs";
+    private static final String KEY_THEME = "theme";
+    private static final String KEY_FONT_SIZE = "fontSize";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
+
+        preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentTheme = preferences.getString(KEY_THEME, "auto");
+        currentFontSize = preferences.getInt(KEY_FONT_SIZE, 100);
 
         webView = findViewById(R.id.webView);
         progressBar = findViewById(R.id.progressBar);
@@ -49,10 +61,13 @@ public class ArticleActivity extends AppCompatActivity {
     }
 
     private void configureWebView() {
-        webView.getSettings().setJavaScriptEnabled(true); // Habilitado para manipulação de estilos
+        webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
-        webView.setWebViewClient(new WebViewClient());
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            webView.getSettings().setForceDark(WebSettings.FORCE_DARK_AUTO);
+        }
     }
 
     private void setupControls() {
@@ -63,11 +78,9 @@ public class ArticleActivity extends AppCompatActivity {
         ImageButton btnThemeDark = findViewById(R.id.btnThemeDark);
         ImageButton btnThemeSepia = findViewById(R.id.btnThemeSepia);
 
-        // Controle de tamanho da fonte
         btnDecreaseFont.setOnClickListener(v -> adjustFontSize(-10));
         btnIncreaseFont.setOnClickListener(v -> adjustFontSize(10));
 
-        // Controle de temas
         View.OnClickListener themeListener = v -> {
             String theme = "auto";
             if (v == btnThemeLight) theme = "light";
@@ -84,6 +97,7 @@ public class ArticleActivity extends AppCompatActivity {
 
     private void adjustFontSize(int delta) {
         currentFontSize = Math.max(80, Math.min(150, currentFontSize + delta));
+        preferences.edit().putInt(KEY_FONT_SIZE, currentFontSize).apply();
         updateFontSize();
     }
 
@@ -99,6 +113,8 @@ public class ArticleActivity extends AppCompatActivity {
 
     private void applyTheme(String theme) {
         currentTheme = theme;
+        preferences.edit().putString(KEY_THEME, theme).apply();
+
         int bgColor;
         int textColor;
 
@@ -116,10 +132,13 @@ public class ArticleActivity extends AppCompatActivity {
                 textColor = ContextCompat.getColor(this, R.color.sepia_text);
                 break;
             default:
-                boolean isDark = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
-                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
-                bgColor = isDark ? ContextCompat.getColor(this, R.color.black) : ContextCompat.getColor(this, R.color.white);
-                textColor = isDark ? ContextCompat.getColor(this, R.color.white) : ContextCompat.getColor(this, R.color.black);
+                int nightModeFlags = getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK;
+                boolean isDark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+                bgColor = isDark ? ContextCompat.getColor(this, R.color.black)
+                        : ContextCompat.getColor(this, R.color.white);
+                textColor = isDark ? ContextCompat.getColor(this, R.color.white)
+                        : ContextCompat.getColor(this, R.color.black);
                 break;
         }
 
@@ -130,6 +149,7 @@ public class ArticleActivity extends AppCompatActivity {
                 (0xFFFFFF & textColor)
         );
         webView.evaluateJavascript(js, null);
+        webView.setBackgroundColor(bgColor);
     }
 
     private class ContentExtractorTask extends AsyncTask<String, Void, String> {
@@ -280,8 +300,8 @@ public class ArticleActivity extends AppCompatActivity {
                     "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
                     "<style>" +
                     ":root {" +
-                    "  --bg-color: #ffffff;" +
-                    "  --text-color: #333333;" +
+                    "  --bg-color: inherit;" +
+                    "  --text-color: inherit;" +
                     "}" +
                     "body { " +
                     "  max-width: 800px; " +
@@ -307,18 +327,22 @@ public class ArticleActivity extends AppCompatActivity {
                     "<div class='content'>" + content + "</div>" +
                     "</body></html>";
         }
-
         private String errorHtml() {
             return "<html><body style='padding:2rem;text-align:center;'>" +
                     "<h1>Erro ao carregar conteúdo</h1>" +
                     "<p>O artigo não pôde ser carregado.</p></body></html>";
         }
-
         @Override
         protected void onPostExecute(String html) {
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    applyTheme(currentTheme);
+                    updateFontSize();
+                }
+            });
             webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
             progressBar.setVisibility(View.GONE);
-            applyTheme(currentTheme); // Aplicar tema inicial
         }
     }
 }
