@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/btnDecreaseFont"
+        android:icon="@drawable/ic_text_decrease"
+        android:title="Diminuir fonte"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/btnIncreaseFont"
+        android:icon="@drawable/ic_text_increase"
+        android:title="Aumentar fonte"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/btnThemeAuto"
+        android:icon="@drawable/ic_theme_auto"
+        android:title="Tema automático"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/btnThemeLight"
+        android:icon="@drawable/ic_theme_light"
+        android:title="Tema claro"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/btnThemeDark"
+        android:icon="@drawable/ic_theme_dark"
+        android:title="Tema escuro"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/btnThemeSepia"
+        android:icon="@drawable/ic_theme_sepia"
+        android:title="Tema sépia"
+        app:showAsAction="always"/>
+</menu>

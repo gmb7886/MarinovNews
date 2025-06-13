@@ -1,70 +1,68 @@
-package com.marinov.news;
+package com.marinov.news
 
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.textfield.TextInputEditText;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import android.content.Context
+import android.content.SharedPreferences
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
+import androidx.core.content.edit
 
-public class SettingsFragment extends Fragment {
-    private TextInputEditText etRssUrl;
-    private RecyclerView rvUrls;
-    private UrlsAdapter adapter;
-    private List<String> urls = new ArrayList<>();
-    private SharedPreferences prefs;
+class SettingsFragment : Fragment() {
+    private var etRssUrl: TextInputEditText? = null
+    private var rvUrls: RecyclerView? = null
+    private var adapter: UrlsAdapter? = null
+    private var urls: MutableList<String?> = ArrayList<String?>()
+    private var prefs: SharedPreferences? = null
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        prefs = requireActivity().getSharedPreferences("feeds", getContext().MODE_PRIVATE);
-        urls = new ArrayList<>(prefs.getStringSet("urls", new HashSet<>()));
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_settings, container, false)
+        prefs = requireActivity().getSharedPreferences("feeds", Context.MODE_PRIVATE)
+        urls = ArrayList<String?>(prefs!!.getStringSet("urls", HashSet<String?>()))
 
-        etRssUrl = view.findViewById(R.id.etRssUrl);
-        rvUrls = view.findViewById(R.id.rvUrls);
-        rvUrls.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new UrlsAdapter(urls, this::removeUrl);
-        rvUrls.setAdapter(adapter);
+        etRssUrl = view.findViewById<TextInputEditText>(R.id.etRssUrl)
+        rvUrls = view.findViewById<RecyclerView>(R.id.rvUrls)
+        rvUrls!!.setLayoutManager(LinearLayoutManager(context))
+        adapter = UrlsAdapter(urls) { position: Int -> this.removeUrl(position) }
+        rvUrls!!.setAdapter(adapter)
 
-        view.findViewById(R.id.btnAddFeed).setOnClickListener(v -> {
-            String url = etRssUrl.getText().toString().trim();
-            if (url.isEmpty()) {
-                Toast.makeText(getContext(), "Digite uma URL válida", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            urls.add(url);
-            // Log de salvamento
-            Log.d("RSS", "Salvando feed: " + url);
-            saveUrls();
-            adapter.notifyItemInserted(urls.size() - 1);
-            etRssUrl.setText("");
-        });
+        view.findViewById<View?>(R.id.btnAddFeed)
+            .setOnClickListener(View.OnClickListener setOnClickListener@{ v: View? ->
+                val url = etRssUrl!!.getText().toString().trim { it <= ' ' }
+                if (url.isEmpty()) {
+                    Toast.makeText(context, "Digite uma URL válida", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                urls.add(url)
+                // Log de salvamento
+                Log.d("RSS", "Salvando feed: $url")
+                saveUrls()
+                adapter!!.notifyItemInserted(urls.size - 1)
+                etRssUrl!!.setText("")
+            })
 
-        return view;
+        return view
     }
 
-    private void removeUrl(int position) {
-        urls.remove(position);
-        saveUrls();
-        adapter.notifyItemRemoved(position);
+    private fun removeUrl(position: Int) {
+        urls.removeAt(position)
+        saveUrls()
+        adapter!!.notifyItemRemoved(position)
     }
 
-    private void saveUrls() {
-        SharedPreferences.Editor ed = prefs.edit();
-        ed.putStringSet("urls", new HashSet<>(urls));
-        ed.apply();
+    private fun saveUrls() {
+        prefs!!.edit {
+            putStringSet("urls", HashSet<String?>(urls))
+        }
     }
 }

@@ -1,49 +1,36 @@
-package com.marinov.news;
+package com.marinov.news
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.List;
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 
-public class UrlsAdapter extends RecyclerView.Adapter<UrlsAdapter.VH> {
-    private final List<String> list;
-    private final OnRemoveListener listener;
-
-    public interface OnRemoveListener {
-        void onRemove(int position);
+internal class UrlsAdapter(private val list: MutableList<String?>, private val listener: OnRemoveListener) :
+    RecyclerView.Adapter<UrlsAdapter.VH?>() {
+    fun interface OnRemoveListener {
+        fun onRemove(position: Int)
     }
 
-    public UrlsAdapter(List<String> data, OnRemoveListener l) {
-        list = data;
-        listener = l;
+    override fun onCreateViewHolder(p: ViewGroup, i: Int): VH {
+        val v = LayoutInflater.from(p.context)
+            .inflate(R.layout.item_url, p, false)
+        return VH(v)
     }
 
-    @NonNull @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup p, int i) {
-        View v = LayoutInflater.from(p.getContext())
-                .inflate(R.layout.item_url, p, false);
-        return new VH(v);
+    override fun onBindViewHolder(h: VH, pos: Int) {
+        val url = list[pos]
+        h.tvUrl.text = url
+        h.btnRemove.setOnClickListener(View.OnClickListener { v: View? -> listener.onRemove(pos) })
     }
 
-    @Override public void onBindViewHolder(@NonNull VH h, int pos) {
-        String url = list.get(pos);
-        h.tvUrl.setText(url);
-        h.btnRemove.setOnClickListener(v -> listener.onRemove(pos));
+    override fun getItemCount(): Int {
+        return list.size
     }
 
-    @Override public int getItemCount() { return list.size(); }
-
-    static class VH extends RecyclerView.ViewHolder {
-        TextView tvUrl;
-        ImageButton btnRemove;
-        VH(View v) {
-            super(v);
-            tvUrl = v.findViewById(R.id.tvUrl);
-            btnRemove = v.findViewById(R.id.btnRemove);
-        }
+    internal class VH(v: View) : RecyclerView.ViewHolder(v) {
+        var tvUrl: TextView = v.findViewById<TextView>(R.id.tvUrl)
+        var btnRemove: ImageButton = v.findViewById<ImageButton>(R.id.btnRemove)
     }
 }

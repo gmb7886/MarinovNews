@@ -1,85 +1,81 @@
-package com.marinov.news;
+package com.marinov.news
 
-import android.os.Bundle;
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.color.DynamicColors
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+class MainActivity : AppCompatActivity() {
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.color.DynamicColors;
+    private lateinit var coordinator: CoordinatorLayout
+    private lateinit var bottomNav: BottomNavigationView
 
-public class MainActivity extends AppCompatActivity {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    private CoordinatorLayout coordinator;
-    private BottomNavigationView bottomNav;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         // Material You
-        DynamicColors.applyToActivityIfAvailable(this);
+        DynamicColors.applyToActivityIfAvailable(this)
 
-        // Edge-to-edge manual
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        // Edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main)
 
-        coordinator = findViewById(R.id.coordinator);
-        bottomNav   = findViewById(R.id.bottomNav);
+        coordinator = findViewById(R.id.coordinator)
+        bottomNav = findViewById(R.id.bottomNav)
 
-        setupSystemBarsInsets();
-        setupNavigation(savedInstanceState);
+        setupSystemBarsInsets()
+        setupNavigation(savedInstanceState)
     }
 
-    private void setupSystemBarsInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(coordinator, (view, insets) -> {
-            int statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
-            int navBarInset    = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+    private fun setupSystemBarsInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(coordinator) { view, insets ->
+            val statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
 
             // Aplica padding top ao fragmentContainer
-            findViewById(R.id.fragmentContainer)
-                    .setPadding(0, statusBarInset, 0, 0);
+            findViewById<android.view.View>(R.id.fragmentContainer)
+                .setPadding(0, statusBarInset, 0, 0)
 
             // Aplica padding bottom ao BottomNavigationView
             bottomNav.setPadding(
-                    bottomNav.getPaddingLeft(),
-                    bottomNav.getPaddingTop(),
-                    bottomNav.getPaddingRight(),
-                    navBarInset
-            );
+                bottomNav.paddingLeft,
+                bottomNav.paddingTop,
+                bottomNav.paddingRight,
+                navBarInset
+            )
 
             // Consumir todos os insets
-            return WindowInsetsCompat.CONSUMED;
-        });
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
-    private void setupNavigation(Bundle savedInstanceState) {
-        bottomNav.setOnItemSelectedListener(item -> {
-            handleNavigation(item.getItemId());
-            return true;
-        });
+    private fun setupNavigation(savedInstanceState: Bundle?) {
+        bottomNav.setOnItemSelectedListener { item ->
+            handleNavigation(item.itemId)
+            true
+        }
 
         if (savedInstanceState == null) {
-            bottomNav.setSelectedItemId(R.id.navigation_home);
+            bottomNav.selectedItemId = R.id.navigation_home
         }
     }
 
-    private void handleNavigation(int itemId) {
-        Fragment selected = null;
-        if (itemId == R.id.navigation_home) {
-            selected = new FeedFragment();
-        } else if (itemId == R.id.navigation_settings) {
-            selected = new SettingsFragment();
+    private fun handleNavigation(itemId: Int) {
+        val selected = when (itemId) {
+            R.id.navigation_home -> FeedFragment()
+            R.id.navigation_settings -> SettingsFragment()
+            else -> null
         }
-        if (selected != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, selected)
-                    .commit();
+
+        selected?.let {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, it)
+                .commit()
         }
     }
 }
