@@ -39,6 +39,7 @@ class ArticleActivity : AppCompatActivity() {
     private var currentFontSize = 100
     private lateinit var currentTheme: String
     private lateinit var preferences: SharedPreferences
+    private var isBottomBarVisible = true
 
     private val CONTENT_SELECTORS = arrayOf(
         "[itemprop='articleBody']",
@@ -82,6 +83,10 @@ class ArticleActivity : AppCompatActivity() {
             javaScriptEnabled = true
             loadWithOverviewMode = true
             useWideViewPort = true
+            domStorageEnabled = true
+            builtInZoomControls = true
+            displayZoomControls = false
+            setSupportZoom(true)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(webView) { v, insets ->
@@ -93,6 +98,19 @@ class ArticleActivity : AppCompatActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             webView.settings.forceDark = WebSettings.FORCE_DARK_AUTO
+        }
+
+        // Controle de visibilidade da barra inferior
+        webView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY > oldScrollY + 10 && isBottomBarVisible) {
+                // Rolar para baixo - ocultar barra
+                bottomAppBar.animate().translationY(bottomAppBar.height.toFloat()).setDuration(300).start()
+                isBottomBarVisible = false
+            } else if (scrollY < oldScrollY - 10 && !isBottomBarVisible) {
+                // Rolar para cima - mostrar barra
+                bottomAppBar.animate().translationY(0f).setDuration(300).start()
+                isBottomBarVisible = true
+            }
         }
     }
 
@@ -136,9 +154,15 @@ class ArticleActivity : AppCompatActivity() {
 
     private fun updateFontSize() {
         val js = """
-            document.body.style.fontSize = '$currentFontSize%';
-            document.querySelectorAll('h1, h2, h3').forEach(e => e.style.fontSize = '${currentFontSize + 20}%');
-        """.trimIndent()
+        // Aplica zoom em todo o conteúdo incluindo o título
+        document.documentElement.style.fontSize = '$currentFontSize%';
+        
+        // Força reflow para ativar a transição
+        void document.documentElement.offsetWidth;
+        
+        // Ativa transição suave
+        document.documentElement.style.transition = 'font-size 0.3s ease';
+    """.trimIndent()
         webView.evaluateJavascript(js, null)
     }
 
@@ -278,6 +302,7 @@ class ArticleActivity : AppCompatActivity() {
         cleanContent(content)
         processImages(content)
         processParagraphs(content)
+        processLinks(content)
 
         return content.html()
     }
@@ -310,15 +335,26 @@ class ArticleActivity : AppCompatActivity() {
             if (src.isEmpty()) src = img.absUrl("src")
             if (src.startsWith("//")) src = "https:$src"
 
-            if (img.parent()!!.hasClass("image-social-wrapper")) {
-                img.parent()!!.remove()
+            if (img.parent()?.hasClass("image-social-wrapper") == true) {
+                img.parent()?.remove()
                 continue
             }
 
+            // Preserva proporções originais
+            val width = img.attr("width")
+            val height = img.attr("height")
+            val style = if (width.isNotEmpty() && height.isNotEmpty()) {
+                "max-width:100%; min-width:60%; height:auto; display:block; margin:1.5rem auto; aspect-ratio: $width / $height;"
+            } else {
+                "max-width:100%; min-width:60%; height:auto; display:block; margin:1.5rem auto;"
+            }
+
             img.attr("src", src)
-                .attr("style", "max-width:100%; height:auto; display:block; margin:1rem auto;")
+                .attr("style", style)
+                .attr("onclick", "window.open(this.src, '_blank')")
                 .removeAttr("data-src")
-                .removeAttr("onclick")
+                .removeAttr("width")
+                .removeAttr("height")
         }
     }
 
@@ -328,8 +364,19 @@ class ArticleActivity : AppCompatActivity() {
             if (p.text().trim().isEmpty()) {
                 p.remove()
             } else {
-                p.attr("style", "margin:1rem 0; line-height:1.6;")
+                p.attr("style", "margin:1.2rem 0; line-height:1.7; text-align: justify;")
             }
+        }
+    }
+
+    private fun processLinks(content: Element) {
+        val links = content.select("a[href]")
+        for (link in links) {
+            // Substitui links por spans para remover comportamento de hiperlink
+            val span = link.ownerDocument()?.createElement("span") ?: continue
+            span.html(link.html())
+            span.attr("style", "color: inherit; text-decoration: none;")
+            link.replaceWith(span)
         }
     }
 
@@ -338,11 +385,22 @@ class ArticleActivity : AppCompatActivity() {
             <!DOCTYPE html>
             <html>
             <head>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=10.0'>
                 <style>
+                    /* REGRA ADICIONADA PARA TRANSITION */
+                    html {
+                        transition: font-size 0.3s ease !important;
+                    }
+                    
                     :root {
                         --bg-color: inherit;
                         --text-color: inherit;
+                    }
+                    * {
+                        color: var(--text-color) !important;
+                    }
+                    html {
+                        font-size: 100%;
                     }
                     body {
                         max-width: 800px;
@@ -351,35 +409,112 @@ class ArticleActivity : AppCompatActivity() {
                         font-family: -apple-system, sans-serif;
                         line-height: 1.6;
                         background-color: var(--bg-color) !important;
-                        color: var(--text-color) !important;
                         transition: all 0.3s ease;
+                        font-size: 1rem;
+                        text-size-adjust: 100%;
+                        -webkit-text-size-adjust: 100%;
                     }
                     h1 {
-                        font-size: 2rem;
+                        font-size: 1.8rem;
                         margin: 0 0 0.5rem;
+                        line-height: 1.3;
                     }
                     .meta {
-                        color: #666;
+                        color: #888 !important;
                         font-size: 0.9rem;
                         margin-bottom: 1rem;
                     }
                     .description {
                         font-size: 1.1rem;
-                        color: #444;
+                        color: #aaa !important;
                         margin-bottom: 1.5rem;
+                        font-style: italic;
                     }
-                    img {
+                    .content {
+                        font-size: 1rem;
+                        line-height: 1.7;
+                    }
+                    .content img {
+                        max-width: 100% !important;
+                        min-width: 60% !important;
+                        height: auto !important;
+                        display: block;
+                        margin: 1.5rem auto;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        aspect-ratio: attr(width) / attr(height);
+                    }
+                    .content iframe,
+                    .content video {
                         max-width: 100% !important;
                         height: auto !important;
+                        display: block;
+                        margin: 1.5rem auto;
                     }
-                    p {
-                        margin: 1rem 0;
-                        line-height: 1.6;
+                    .content p {
+                        margin: 1.2rem 0;
+                        text-align: justify;
                     }
-                    button, input, select, textarea {
-                        display: none !important;
+                    .content h1, .content h2, .content h3, .content h4 {
+                        margin: 1.8rem 0 1rem;
+                        line-height: 1.3;
+                    }
+                    .content blockquote {
+                        border-left: 3px solid #ccc;
+                        padding-left: 1rem;
+                        margin: 1.5rem 0;
+                        color: #aaa;
+                    }
+                    .content a {
+                        color: inherit !important;
+                        text-decoration: none !important;
+                        cursor: default !important;
+                        pointer-events: none !important;
+                    }
+                    @media (max-width: 600px) {
+                        body {
+                            padding: 12px;
+                        }
+                        .content img {
+                            min-width: 80% !important;
+                            margin: 1rem auto;
+                        }
                     }
                 </style>
+                <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                        // Desativa todos os links
+                        document.querySelectorAll('a').forEach(function(link) {
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                return false;
+                            };
+                        });
+                        
+                        // Tratamento especial para imagens
+                        document.querySelectorAll('img').forEach(function(img) {
+                            img.onclick = function() {
+                                window.open(img.src, '_blank');
+                            };
+                            
+                            // Garante bom dimensionamento mesmo sem CSS
+                            if (!img.style.width && !img.style.height) {
+                                const width = img.naturalWidth;
+                                const height = img.naturalHeight;
+                                
+                                if (width > 0 && height > 0) {
+                                    const aspectRatio = height / width;
+                                    img.style.maxWidth = '100%';
+                                    img.style.height = 'auto';
+                                    
+                                    if (width < 300 || height < 200) {
+                                        img.style.minWidth = '70%';
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
             </head>
             <body>
                 <h1>$title</h1>

@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream
@@ -61,31 +62,26 @@ class FeedFragment : Fragment() {
                 Log.d("RSS", "Feeds encontrados: $urls")
 
                 val allItems = mutableListOf<FeedItem>()
+                val errors = mutableListOf<String>()
+
                 for (url in urls) {
                     if (!TextUtils.isEmpty(url)) {
-                        allItems.addAll(parseRss(url))
+                        try {
+                            allItems.addAll(parseRss(url))
+                        } catch (e: Exception) {
+                            errors.add(url)
+                            Log.e("RSS", "Erro no feed: $url", e)
+                        }
                     }
                 }
 
-                // Ordena por data decrescente, trata datas nulas/vazias
-                val format = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
-                allItems.sortedWith { a, b ->
-                    val sa = a.pubDate
-                    val sb = b.pubDate
-                    when {
-                        TextUtils.isEmpty(sa) && TextUtils.isEmpty(sb) -> 0
-                        TextUtils.isEmpty(sa) -> 1
-                        TextUtils.isEmpty(sb) -> -1
-                        else -> {
-                            try {
-                                val da = format.parse(sa)
-                                val db = format.parse(sb)
-                                db.compareTo(da)
-                            } catch (_: ParseException) {
-                                0
-                            }
-                        }
-                    }
+                if (errors.isNotEmpty()) {
+                    Log.w("RSS", "Feeds com erro: ${errors.size}")
+                }
+
+                // Ordenação por data usando múltiplos formatos
+                allItems.sortedByDescending { item ->
+                    item.pubDate?.let { parseDateRobust(it) } ?: 0L
                 }
             }
 
@@ -97,6 +93,28 @@ class FeedFragment : Fragment() {
         }
     }
 
+    private fun parseDateRobust(dateString: String): Long {
+        val formats = arrayOf(
+            "EEE, dd MMM yyyy HH:mm:ss Z",
+            "EEE, dd MMM yyyy HH:mm:ss z",
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+            "dd MMM yyyy HH:mm:ss Z",
+            "dd MMM yyyy"
+        )
+
+        for (format in formats) {
+            try {
+                val sdf = SimpleDateFormat(format, Locale.US)
+                sdf.timeZone = TimeZone.getTimeZone("UTC")
+                return sdf.parse(dateString)?.time ?: 0L
+            } catch (_: ParseException) {
+                // Tentar próximo formato
+            }
+        }
+        return 0L
+    }
+
     private fun parseRss(feedUrl: String): List<FeedItem> {
         val list = mutableListOf<FeedItem>()
         try {
@@ -104,9 +122,11 @@ class FeedFragment : Fragment() {
             val conn = url.openConnection() as HttpURLConnection
             conn.connectTimeout = 5000
             conn.readTimeout = 5000
+            conn.setRequestProperty("User-Agent", "NewsApp/1.0")
             val stream: InputStream = conn.inputStream
 
             val factory = XmlPullParserFactory.newInstance()
+            factory.isNamespaceAware = true
             val parser = factory.newPullParser()
             parser.setInput(stream, null)
 
@@ -119,39 +139,57 @@ class FeedFragment : Fragment() {
                 when (event) {
                     XmlPullParser.START_TAG -> {
                         when {
-                            tag.equals("item", ignoreCase = true)
-                                    || tag.equals("entry", ignoreCase = true) -> {
+                            tag.equals("item", ignoreCase = true) ||
+                                    tag.equals("entry", ignoreCase = true) -> {
                                 insideItem = true
-                                current = FeedItem()
+                                current = FeedItem().apply {
+                                    this.feedSource = feedUrl
+                                }
                             }
+
                             insideItem -> {
-                                when {
-                                    tag.equals("title", ignoreCase = true) -> {
-                                        current?.title = parser.nextText()
-                                    }
-                                    tag.equals("pubDate", ignoreCase = true)
-                                            || tag.equals("updated", ignoreCase = true) -> {
-                                        current?.pubDate = parser.nextText()
-                                    }
-                                    tag.equals("description", ignoreCase = true)
-                                            || tag.equals("content", ignoreCase = true) -> {
-                                        current?.description = parser.nextText()
-                                    }
-                                    tag.equals("link", ignoreCase = true) -> {
-                                        val href = parser.getAttributeValue(null, "href")
-                                        if (href != null) {
-                                            current?.link = href
-                                        } else {
-                                            current?.link = parser.nextText()
+                                when (tag.lowercase(Locale.getDefault())) {
+                                    "title" -> current?.title = parser.nextText()
+
+                                    "pubdate", "updated" -> current?.pubDate = parser.nextText()
+
+                                    "description", "content", "summary" -> {
+                                        val text = parser.nextText()
+                                        // Limpa a descrição removendo links e elementos indesejados
+                                        current?.description = cleanDescription(text)
+
+                                        // Se não tem imagem, tenta extrair da descrição original
+                                        if (current?.imageUrl.isNullOrEmpty()) {
+                                            extractImageFromDescription(text)?.let { img ->
+                                                current?.imageUrl = img
+                                            }
                                         }
                                     }
-                                    tag.equals("enclosure", ignoreCase = true) -> {
-                                        val img = parser.getAttributeValue(null, "url")
-                                        img?.let { current?.imageUrl = it }
+
+                                    "link" -> {
+                                        val href = parser.getAttributeValue(null, "href")
+                                        current?.link = href ?: parser.nextText()
                                     }
-                                    tag.equals("media:content", ignoreCase = true) -> {
+
+                                    "enclosure" -> {
                                         val img = parser.getAttributeValue(null, "url")
-                                        img?.let { current?.imageUrl = it }
+                                        if (!img.isNullOrEmpty()) {
+                                            current?.imageUrl = img
+                                        }
+                                    }
+
+                                    "media:content", "media:thumbnail" -> {
+                                        val img = parser.getAttributeValue(null, "url")
+                                        if (!img.isNullOrEmpty()) {
+                                            current?.imageUrl = img
+                                        }
+                                    }
+
+                                    "itunes:image" -> {
+                                        val img = parser.getAttributeValue(null, "href")
+                                        if (!img.isNullOrEmpty()) {
+                                            current?.imageUrl = img
+                                        }
                                     }
                                 }
                             }
@@ -159,9 +197,20 @@ class FeedFragment : Fragment() {
                     }
 
                     XmlPullParser.END_TAG -> {
-                        if ((tag.equals("item", ignoreCase = true)
-                                    || tag.equals("entry", ignoreCase = true))
-                            && current != null) {
+                        if ((tag.equals("item", ignoreCase = true) ||
+                                    tag.equals("entry", ignoreCase = true)) &&
+                            current != null
+                        ) {
+
+                            // Última tentativa de extrair imagem da descrição
+                            if (current.imageUrl.isNullOrEmpty()) {
+                                current.description?.let { desc ->
+                                    extractImageFromDescription(desc)?.let { img ->
+                                        current.imageUrl = img
+                                    }
+                                }
+                            }
+
                             list.add(current)
                             insideItem = false
                         }
@@ -171,8 +220,39 @@ class FeedFragment : Fragment() {
             }
             stream.close()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("RSS", "Erro ao processar feed: $feedUrl", e)
         }
         return list
+    }
+
+    private fun extractImageFromDescription(html: String?): String? {
+        if (html.isNullOrEmpty()) return null
+
+        return try {
+            val doc = Jsoup.parse(html)
+            val img = doc.select("img").first()
+            img?.attr("src")?.takeIf { it.isNotEmpty() }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun cleanDescription(html: String?): String? {
+        if (html.isNullOrEmpty()) return html
+
+        return try {
+            val doc = Jsoup.parse(html)
+
+            // Remove todos os links completamente (tags <a>)
+            doc.select("a").remove()
+
+            // Remove outros elementos indesejados
+            doc.select("script, style, iframe, noscript").remove()
+
+            // Mantém apenas o texto e formatação básica
+            doc.body().text()
+        } catch (e: Exception) {
+            html // Em caso de erro, retorna o original
+        }
     }
 }

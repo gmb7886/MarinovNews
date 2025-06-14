@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0061C1</color>
+    <color name="colorPrimary">#DC933D</color>
     <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorPrimaryContainer">#0061C1</color>
+    <color name="colorPrimaryContainer">#D79C5C</color>
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorOnSurface">#000000</color>
     <color name="icon_tint">#000000</color>
     <color name="colorSurfaceVariant">@android:color/black</color>
     <color name="md_theme_light_surfaceVariant">#F3EDF7</color>
-    <color name="card_stroke_color">#1E88E5</color>
+    <color name="card_stroke_color">#D79C5C</color>
     <color name="selector_bottom_nav_item_color">@color/nav_item_color</color>
     <color name="sepia">#F4ECD8</color>
     <color name="sepia_text">#5A4A42</color>

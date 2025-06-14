@@ -6,4 +6,5 @@ class FeedItem {
     var description: String? = null
     var link: String? = null
     var imageUrl: String? = null
+    var feedSource: String? = null
 }
