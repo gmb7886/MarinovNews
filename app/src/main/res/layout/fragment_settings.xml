@@ -1,112 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/fundo">
-
 <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="?attr/actionBarSize">
-
-        <!-- Seção: Adicionar feed manualmente -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Adicionar feed manualmente"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:layout_marginBottom="8dp"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="URL do feed RSS"
-            app:endIconMode="clear_text">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etRssUrl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+            android:hint="URL do feed RSS">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRssUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/btnAddFeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Adicionar feed"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_gravity="end"
-            android:layout_marginTop="8dp"/>
-
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider"
-            android:layout_marginVertical="24dp"/>
-
-        <!-- Seção: Descobrir feeds automaticamente -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Descobrir feeds automaticamente"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:layout_marginBottom="8dp"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="URL do site"
-            app:endIconMode="clear_text">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etWebsiteUrl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textUri"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDiscoverFeeds"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Buscar feeds"
-            style="@style/Widget.Material3.Button"
-            android:layout_gravity="end"
-            android:layout_marginTop="8dp"
-            app:icon="@drawable/ic_search"/>
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="gone"
-            android:layout_marginTop="8dp"/>
-
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider"
-            android:layout_marginVertical="24dp"/>
-
-        <!-- Lista de feeds salvos -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Feeds configurados"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:layout_marginBottom="8dp"/>
+            style="@style/Widget.Material3.Button"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvUrls"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="200dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:paddingTop="16dp"/>
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
