@@ -26,6 +26,6 @@
         <item name="itemPaddingBottom">8dp</item>
         <item name="itemIconTint">@color/selector_bottom_nav_item_color</item>
         <item name="itemTextColor">@color/selector_bottom_nav_item_color</item>
-        <item name="android:background">?attr/colorSurface</item>
+        <item name="android:background">@color/fundo</item>
     </style>
 </resources>

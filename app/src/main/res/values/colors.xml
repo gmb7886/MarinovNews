@@ -14,5 +14,6 @@
     <color name="sepia_text">#5A4A42</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-
+    <color name="fundo">#FFFFFF</color>
+    <color name="fundoleitor">#EAEAF4</color>
 </resources>

@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:layout_gravity="top"
-        android:progressTint="@color/colorPrimary"
+        android:progressTint="?android:attr/colorPrimary"
         android:visibility="gone"/>
 
     <!-- Nova BottomAppBar com comportamento integrado -->
@@ -38,12 +38,12 @@
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground">
+        android:background="@color/fundo">
 
         <ProgressBar
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center"
-            android:indeterminateTint="@color/colorPrimary"/>
+            android:indeterminateTint="?android:attr/colorPrimary"/>
     </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

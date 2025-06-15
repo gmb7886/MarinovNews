@@ -34,6 +34,8 @@ class FeedFragment : Fragment() {
     private lateinit var adapter: FeedAdapter
     private val items = mutableListOf<FeedItem>()
     private lateinit var prefs: SharedPreferences
+    private var lastScrollPosition = 0
+    private var isScrollingDown = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,11 +50,41 @@ class FeedFragment : Fragment() {
         adapter = FeedAdapter(items)
         rvFeed.adapter = adapter
 
+        // Adiciona listener de rolagem para controle da barra inferior
+        rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val currentScrollPosition = (rvFeed.layoutManager as LinearLayoutManager)
+                    .findFirstVisibleItemPosition()
+
+                isScrollingDown = dy > 0
+
+                // Controle de visibilidade da barra inferior
+                if (isScrollingDown && currentScrollPosition > lastScrollPosition) {
+                    // Rolando para baixo - esconde barra
+                    (activity as? MainActivity)?.hideBottomNavigation()
+                } else if (!isScrollingDown && currentScrollPosition < lastScrollPosition) {
+                    // Rolando para cima - mostra barra
+                    (activity as? MainActivity)?.showBottomNavigation()
+                }
+
+                lastScrollPosition = currentScrollPosition
+            }
+        })
+
         prefs = requireActivity().getSharedPreferences("feeds", Context.MODE_PRIVATE)
         loadFeeds()
 
         return view
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Garante que a barra esteja visível ao entrar no fragmento
+        (activity as? MainActivity)?.showBottomNavigation()
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     private fun loadFeeds() {
@@ -92,7 +124,6 @@ class FeedFragment : Fragment() {
             tvEmpty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
         }
     }
-
     private fun parseDateRobust(dateString: String): Long {
         val formats = arrayOf(
             "EEE, dd MMM yyyy HH:mm:ss Z",

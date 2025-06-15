@@ -4,9 +4,10 @@
     android:id="@+id/loadingOverlay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:visibility="gone">
+    android:visibility="gone"
+    android:background="@color/fundo">
 
-    <ProgressBar
+<ProgressBar
         android:id="@+id/loadingSpinner"
         android:layout_width="48dp"
         android:layout_height="48dp"

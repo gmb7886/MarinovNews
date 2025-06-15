@@ -7,31 +7,21 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var coordinator: CoordinatorLayout
-    private lateinit var bottomNav: BottomNavigationView
+    lateinit var bottomNav: BottomNavigationView // Tornar público para acesso do fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Material You
-        DynamicColors.applyToActivityIfAvailable(this)
-
-        // Edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContentView(R.layout.activity_main)
-
         coordinator = findViewById(R.id.coordinator)
         bottomNav = findViewById(R.id.bottomNav)
-
         setupSystemBarsInsets()
         setupNavigation(savedInstanceState)
     }
-
     private fun setupSystemBarsInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(coordinator) { view, insets ->
             val statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
@@ -76,6 +66,19 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, it)
                 .commit()
+        }
+    }
+
+    // Métodos para controlar a visibilidade da barra
+    fun hideBottomNavigation() {
+        if (bottomNav.translationY == 0f) {
+            bottomNav.animate().translationY(bottomNav.height.toFloat()).setDuration(300).start()
+        }
+    }
+
+    fun showBottomNavigation() {
+        if (bottomNav.translationY != 0f) {
+            bottomNav.animate().translationY(0f).setDuration(300).start()
         }
     }
 }
