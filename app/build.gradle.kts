@@ -6,13 +6,16 @@ plugins {
 android {
     namespace = "com.marinov.news"
     compileSdk = 35
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.marinov.news"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "0.9.2"
+        versionName = "0.9.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -43,8 +46,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.github.bumptech.glide:glide:4.15.1")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
-    implementation ("androidx.core:core-splashscreen:1.0.1")
-    implementation ("org.jsoup:jsoup:1.15.3")
-    }
+    implementation (libs.glide)
+    annotationProcessor (libs.compiler)
+    implementation (libs.androidx.core.splashscreen)
+    implementation (libs.jsoup)
+    implementation (libs.androidx.lifecycle.runtime.ktx)
+
+}

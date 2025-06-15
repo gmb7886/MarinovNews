@@ -1,32 +1,265 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:background="@color/fundo"
+    android:paddingBottom="?attr/actionBarSize">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="URL do feed RSS">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRssUrl"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:paddingBottom="40dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp"
+                    android:paddingHorizontal="16dp">
 
-        <Button
-            android:id="@+id/btnAddFeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Adicionar feed"
-            style="@style/Widget.Material3.Button"/>
+                        <!-- Seção: Atualizações -->
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/TextAppearance.Material3.TitleMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Atualizações"
+                            android:paddingVertical="4dp"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvUrls"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:paddingTop="16dp"/>
-</LinearLayout>
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/fundo"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="1dp"
+                            app:cardElevation="0dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="8dp">
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/btn_check_update"
+                                            style="@style/Widget.Material3.Button.TextButton"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:minHeight="48dp"
+                                            android:gravity="start|center_vertical"
+                                            android:paddingHorizontal="16dp"
+                                            android:text="Verificar atualizações do app"
+                                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                                            app:icon="@drawable/ic_update"
+                                            app:iconTint="?attr/colorOnSurfaceVariant"
+                                            app:iconGravity="start"
+                                            app:iconPadding="8dp"/>
+                                </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Seção: Feeds RSS -->
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/TextAppearance.Material3.TitleMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Feeds RSS"
+                            android:paddingVertical="4dp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="16dp"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/fundo"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="1dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginVertical="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="16dp">
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:hint="URL do feed RSS">
+                                                <com.google.android.material.textfield.TextInputEditText
+                                                    android:id="@+id/etRssUrl"
+                                                    android:layout_width="match_parent"
+                                                    android:layout_height="wrap_content"/>
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/btnAddFeed"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="end"
+                                            android:layout_marginTop="8dp"
+                                            android:text="Adicionar feed"
+                                            style="@style/Widget.Material3.Button"/>
+
+                                        <androidx.recyclerview.widget.RecyclerView
+                                            android:id="@+id/rvUrls"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="16dp"
+                                            android:paddingTop="16dp"
+                                            android:minHeight="100dp"/>
+                                </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Seção: Redes Sociais -->
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/TextAppearance.Material3.TitleMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Redes Sociais"
+                            android:paddingVertical="4dp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="16dp"/>
+
+                        <!-- Twitter -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/fundo"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="1dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginVertical="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="8dp">
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/btn_twitter"
+                                            style="@style/Widget.Material3.Button.TextButton"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:minHeight="48dp"
+                                            android:gravity="start|center_vertical"
+                                            android:paddingHorizontal="16dp"
+                                            android:text="Twitter (@gmb7886)"
+                                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                                            app:icon="@drawable/ic_twitter"
+                                            app:iconTint="?attr/colorOnSurfaceVariant"
+                                            app:iconGravity="start"
+                                            app:iconPadding="8dp"/>
+                                </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Reddit -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/fundo"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="1dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginVertical="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="8dp">
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/btn_reddit"
+                                            style="@style/Widget.Material3.Button.TextButton"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:minHeight="48dp"
+                                            android:gravity="start|center_vertical"
+                                            android:paddingHorizontal="16dp"
+                                            android:text="Reddit (u/GMB7886)"
+                                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                                            app:icon="@drawable/ic_reddit"
+                                            app:iconTint="?attr/colorOnSurfaceVariant"
+                                            app:iconGravity="start"
+                                            app:iconPadding="8dp"/>
+                                </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- GitHub -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/fundo"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="1dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginVertical="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="8dp">
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/btn_github"
+                                            style="@style/Widget.Material3.Button.TextButton"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:minHeight="48dp"
+                                            android:gravity="start|center_vertical"
+                                            android:paddingHorizontal="16dp"
+                                            android:text="GitHub (gmb7886)"
+                                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                                            app:icon="@drawable/ic_github"
+                                            app:iconTint="?attr/colorOnSurfaceVariant"
+                                            app:iconGravity="start"
+                                            app:iconPadding="8dp"/>
+                                </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- YouTube -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/fundo"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="1dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginVertical="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="8dp">
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/btn_youtube"
+                                            style="@style/Widget.Material3.Button.TextButton"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:minHeight="48dp"
+                                            android:gravity="start|center_vertical"
+                                            android:paddingHorizontal="16dp"
+                                            android:text="YouTube (@CanalDoMarinov)"
+                                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                                            app:icon="@drawable/ic_youtube"
+                                            app:iconTint="?attr/colorOnSurfaceVariant"
+                                            app:iconGravity="start"
+                                            app:iconPadding="8dp"/>
+                                </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
