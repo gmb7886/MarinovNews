@@ -6,7 +6,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +25,20 @@ class MainActivity : AppCompatActivity() {
         bottomNav = findViewById(R.id.bottomNav)
         setupSystemBarsInsets()
         setupNavigation(savedInstanceState)
+        iniciarUpdateWorker()
+    }
+    private fun iniciarUpdateWorker() {
+        val updateWork = PeriodicWorkRequest.Builder(
+            UpdateCheckWorker::class.java,
+            15,
+            TimeUnit.MINUTES
+        ).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "UpdateCheckWorker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            updateWork
+        )
     }
     private fun setupSystemBarsInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(coordinator) { view, insets ->

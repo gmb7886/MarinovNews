@@ -15,7 +15,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "0.9.3"
+        versionName = "0.9.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,5 +51,5 @@ dependencies {
     implementation (libs.androidx.core.splashscreen)
     implementation (libs.jsoup)
     implementation (libs.androidx.lifecycle.runtime.ktx)
-
+    implementation(libs.androidx.work.runtime.ktx)
 }
