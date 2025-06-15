@@ -1,8 +1,15 @@
 package com.marinov.news
 
+import android.content.res.Configuration
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -10,6 +17,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.color.MaterialColors
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +27,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        configureSystemBarsForLegacyDevices()
+        MaterialColors.getColor(
+            this,
+            com.google.android.material.R.attr.colorPrimaryContainer,
+            Color.BLACK
+        )
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_main)
         coordinator = findViewById(R.id.coordinator)
@@ -26,6 +40,60 @@ class MainActivity : AppCompatActivity() {
         setupSystemBarsInsets()
         setupNavigation(savedInstanceState)
         iniciarUpdateWorker()
+    }
+    private fun configureSystemBarsForLegacyDevices() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            val isDarkMode = when (AppCompatDelegate.getDefaultNightMode()) {
+                AppCompatDelegate.MODE_NIGHT_YES -> true
+                AppCompatDelegate.MODE_NIGHT_NO -> false
+                else -> {
+                    val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                    currentNightMode == Configuration.UI_MODE_NIGHT_YES
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.apply {
+                    clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+                        statusBarColor = Color.BLACK
+                        navigationBarColor = Color.BLACK
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            var flags = decorView.systemUiVisibility
+                            flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                            decorView.systemUiVisibility = flags
+                        }
+                    } else {
+                        navigationBarColor = if (isDarkMode) {
+                            ContextCompat.getColor(this@MainActivity, R.color.nav_bar_dark)
+                        } else {
+                            ContextCompat.getColor(this@MainActivity, R.color.nav_bar_light)
+                        }
+                    }
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                var flags = window.decorView.systemUiVisibility
+
+                if (isDarkMode) {
+                    flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+                    flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                }
+
+                window.decorView.systemUiVisibility = flags
+            }
+
+            if (!isDarkMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                var flags = window.decorView.systemUiVisibility
+                flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                window.decorView.systemUiVisibility = flags
+            }
+        }
     }
     private fun iniciarUpdateWorker() {
         val updateWork = PeriodicWorkRequest.Builder(

@@ -16,5 +16,6 @@
     <color name="black">#000000</color>
     <color name="fundo">#000000</color>
     <color name="fundoleitor">#1F212B</color>
-
+    <color name="nav_bar_light">#B3FFFFFF</color>
+    <color name="nav_bar_dark">#120C05</color>
 </resources>

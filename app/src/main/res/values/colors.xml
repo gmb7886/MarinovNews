@@ -15,5 +15,7 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="fundo">#FFFFFF</color>
-    <color name="fundoleitor">#EAEAF4</color>
+    <color name="fundoleitor">#1F212B</color>
+    <color name="nav_bar_light">#FAF4EE</color>
+    <color name="nav_bar_dark">#FAF4EE</color>
 </resources>

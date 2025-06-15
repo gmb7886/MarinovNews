@@ -4,20 +4,28 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,7 +36,6 @@ import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
-import androidx.core.content.edit
 
 class ArticleActivity : AppCompatActivity() {
 
@@ -59,7 +66,12 @@ class ArticleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_article)
-
+        configureSystemBarsForLegacyDevices()
+        MaterialColors.getColor(
+            this,
+            com.google.android.material.R.attr.colorPrimaryContainer,
+            Color.BLACK
+        )
         preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         currentTheme = preferences.getString(KEY_THEME, "auto") ?: "auto"
         currentFontSize = preferences.getInt(KEY_FONT_SIZE, 100)
@@ -76,7 +88,126 @@ class ArticleActivity : AppCompatActivity() {
         val url = intent.getStringExtra("url") ?: ""
         loadArticle(url)
     }
+    private fun configureSystemBarsForLegacyDevices() {
+        // Determinar modo escuro apenas para barra de status
+        val isDarkMode = when (AppCompatDelegate.getDefaultNightMode()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            else -> {
+                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                currentNightMode == Configuration.UI_MODE_NIGHT_YES
+            }
+        }
 
+        // Configurações básicas para Android 5.0+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.apply {
+                // Flags fundamentais
+                clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+
+                // Barra de status transparente (Android 7.0+)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    statusBarColor = Color.TRANSPARENT
+                } else {
+                    statusBarColor = Color.BLACK
+                }
+
+                // Cor fixa para barra de navegação (tom de cinza)
+                navigationBarColor = ContextCompat.getColor(
+                    this@ArticleActivity,
+                    R.color.fundoleitor
+                )
+
+                // Layout extendido para transparência
+                var flags = decorView.systemUiVisibility
+                flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                decorView.systemUiVisibility = flags
+            }
+        }
+
+        // CONFIGURAÇÃO DA BARRA DE NAVEGAÇÃO (ÍCONES SEMPRE BRANCOS)
+        when {
+            // Android 15+ (abordagem especial)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2 -> {
+                // Configurar ícones CLAROS (brancos) - LIGHT_NAVIGATION_BARS = ícones ESCUROS
+                window.decorView.windowInsetsController?.apply {
+                    // REMOVER a flag de ícones escuros = ícones claros (brancos)
+                    setSystemBarsAppearance(
+                        0,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    )
+                }
+
+                // Workaround para timing issues no Android 15
+                Handler(Looper.getMainLooper()).postDelayed({
+                    window.decorView.windowInsetsController?.apply {
+                        setSystemBarsAppearance(
+                            0,
+                            WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                        )
+                    }
+                }, 100)
+            }
+
+            // Android 11+ (API moderna)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                window.decorView.windowInsetsController?.apply {
+                    // REMOVER a flag de ícones escuros
+                    setSystemBarsAppearance(
+                        0,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    )
+                }
+            }
+
+            // Android 8.0+ (Oreo até Android 10)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                var flags = window.decorView.systemUiVisibility
+                // REMOVER a flag de ícones escuros (LIGHT_NAVIGATION_BAR)
+                flags = flags and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                window.decorView.systemUiVisibility = flags
+            }
+        }
+
+        // CONFIGURAÇÃO DA BARRA DE STATUS (ÍCONES ADAPTADOS AO TEMA)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            when {
+                // Android 11+ (API moderna)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                    window.decorView.windowInsetsController?.apply {
+                        if (isDarkMode) {
+                            // Tema ESCURO: ícones CLAROS (remover flag de escuros)
+                            setSystemBarsAppearance(
+                                0,
+                                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                            )
+                        } else {
+                            // Tema CLARO: ícones ESCUROS (adicionar flag de escuros)
+                            setSystemBarsAppearance(
+                                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                            )
+                        }
+                    }
+                }
+
+                // Versões legadas (6.0 - 10)
+                else -> {
+                    var flags = window.decorView.systemUiVisibility
+                    if (isDarkMode) {
+                        // Tema ESCURO: remover flag de ícones escuros (SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                        flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                    } else {
+                        // Tema CLARO: adicionar flag de ícones escuros
+                        flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                    }
+                    window.decorView.systemUiVisibility = flags
+                }
+            }
+        }
+    }
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebView() {
         with(webView.settings) {

@@ -4,8 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@color/fundo">
+    android:background="@color/fundo"
+    >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/fundo"
+        android:fitsSystemWindows="true"
+        >
 
     <!-- WebView principal -->
     <WebView
@@ -14,6 +21,8 @@
         android:layout_height="match_parent"
         android:scrollbarStyle="outsideOverlay"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </FrameLayout>
 
     <!-- Barra de progresso -->
     <ProgressBar
@@ -29,10 +38,11 @@
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
-        android:layout_height="85dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:menu="@menu/article_controls"
-        app:backgroundTint="?android:attr/colorBackground" />
+        app:backgroundTint="@color/fundoleitor"
+        />
 
     <!-- Overlay de loading -->
     <FrameLayout
