@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ class FeedFragment : Fragment() {
 
     private lateinit var rvFeed: RecyclerView
     private lateinit var tvEmpty: TextView
+    private lateinit var progressBar: ProgressBar
     private lateinit var adapter: FeedAdapter
     private val items = mutableListOf<FeedItem>()
     private lateinit var prefs: SharedPreferences
@@ -45,10 +47,14 @@ class FeedFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_feed, container, false)
         rvFeed = view.findViewById(R.id.rvFeed)
         tvEmpty = view.findViewById(R.id.tvEmpty)
+        progressBar = view.findViewById(R.id.progressBar)
 
         rvFeed.layoutManager = LinearLayoutManager(requireContext())
         adapter = FeedAdapter(items)
         rvFeed.adapter = adapter
+
+        // Mostra o loading ao iniciar o carregamento
+        progressBar.visibility = View.VISIBLE
 
         // Adiciona listener de rolagem para controle da barra inferior
         rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -85,7 +91,6 @@ class FeedFragment : Fragment() {
         (activity as? MainActivity)?.showBottomNavigation()
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
     private fun loadFeeds() {
         CoroutineScope(Dispatchers.Main).launch {
@@ -121,9 +126,13 @@ class FeedFragment : Fragment() {
             items.clear()
             items.addAll(result)
             adapter.notifyDataSetChanged()
+
+            // Esconde o loading após carregar os itens
+            progressBar.visibility = View.GONE
             tvEmpty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
         }
     }
+
     private fun parseDateRobust(dateString: String): Long {
         val formats = arrayOf(
             "EEE, dd MMM yyyy HH:mm:ss Z",
